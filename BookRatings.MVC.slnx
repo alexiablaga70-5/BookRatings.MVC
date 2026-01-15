@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/Solution Items/" />
+  <Project Path="../BookRatings.gRPC/BookRatings.gRPC.csproj" />
+  <Project Path="../BookRatings.ML.Api/BookRatings.ML.Api.csproj" />
+  <Project Path="BookRatings.MVC.csproj" />
+</Solution>

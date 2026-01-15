@@ -1,0 +1,29 @@
+﻿@model BookRatings.MVC.ViewModels.RecommendationVm
+
+<h2>Recomandare carte</h2>
+
+<form method="post">
+    <div class="mb-3">
+        <label>User ID</label>
+        <input class="form-control" asp-for="UserId" />
+    </div>
+
+    <div class="mb-3">
+        <label>ISBN</label>
+        <input class="form-control" asp-for="ISBN" />
+    </div>
+
+    <button class="btn btn-primary" type="submit">Predict</button>
+</form>
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="alert alert-danger mt-3">@Model.Error</div>
+}
+
+@if (Model.PredictedRating != null)
+{
+    <div class="alert alert-success mt-3">
+        Rating prezis: <b>@Model.PredictedRating</b>
+    </div>
+}
