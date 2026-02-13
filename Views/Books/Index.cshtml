@@ -58,9 +58,9 @@
                 <td>@item.AuthorEntity?.Name</td>
                 <td>@item.PublisherEntity?.Name</td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.ISBN">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ISBN">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ISBN">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.BookId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.BookId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.BookId">Delete</a>
             </td>
         </tr>
 }

@@ -79,19 +79,16 @@ namespace BookRatings.MVC.Controllers
         }
 
         // GET: Books/Details/5
-        public async Task<IActionResult> Details(string id)
+        public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var book = await _context.Books
-                .FirstOrDefaultAsync(m => m.ISBN == id);
-            if (book == null)
-            {
-                return NotFound();
-            }
+                .Include(b => b.AuthorEntity)
+                .Include(b => b.PublisherEntity)
+                .FirstOrDefaultAsync(m => m.BookId == id);
+
+            if (book == null) return NotFound();
 
             return View(book);
         }
@@ -123,20 +120,16 @@ namespace BookRatings.MVC.Controllers
         }
 
         // GET: Books/Edit/5
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var book = await _context.Books.FindAsync(id);
-            if (book == null)
-            {
-                return NotFound();
-            }
+            if (book == null) return NotFound();
+
             ViewData["AuthorEntityId"] = new SelectList(_context.Authors, "AuthorEntityId", "Name", book.AuthorEntityId);
             ViewData["PublisherEntityId"] = new SelectList(_context.Publishers, "PublisherEntityId", "Name", book.PublisherEntityId);
+
             return View(book);
         }
 
@@ -145,10 +138,10 @@ namespace BookRatings.MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-      
-        public async Task<IActionResult> Edit(string id, [Bind("ISBN,Title,Year,AuthorEntityId,PublisherEntityId")] Book book)
+        public async Task<IActionResult> Edit(int id,
+     [Bind("BookId,ISBN,Title,Year,AuthorEntityId,PublisherEntityId")] Book book)
         {
-            if (id != book.ISBN) return NotFound();
+            if (id != book.BookId) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -159,23 +152,21 @@ namespace BookRatings.MVC.Controllers
 
             ViewData["AuthorEntityId"] = new SelectList(_context.Authors, "AuthorEntityId", "Name", book.AuthorEntityId);
             ViewData["PublisherEntityId"] = new SelectList(_context.Publishers, "PublisherEntityId", "Name", book.PublisherEntityId);
+
             return View(book);
         }
 
         // GET: Books/Delete/5
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var book = await _context.Books
-                .FirstOrDefaultAsync(m => m.ISBN == id);
-            if (book == null)
-            {
-                return NotFound();
-            }
+                .Include(b => b.AuthorEntity)
+                .Include(b => b.PublisherEntity)
+                .FirstOrDefaultAsync(m => m.BookId == id);
+
+            if (book == null) return NotFound();
 
             return View(book);
         }
@@ -183,21 +174,22 @@ namespace BookRatings.MVC.Controllers
         // POST: Books/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var book = await _context.Books.FindAsync(id);
             if (book != null)
             {
                 _context.Books.Remove(book);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
+            
             return RedirectToAction(nameof(Index));
         }
 
-        private bool BookExists(string id)
+        private bool BookExists(int id)
         {
-            return _context.Books.Any(e => e.ISBN == id);
+            return _context.Books.Any(e => e.BookId == id);
         }
     }
 }

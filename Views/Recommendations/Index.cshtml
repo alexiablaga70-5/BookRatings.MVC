@@ -23,7 +23,8 @@
 
 @if (Model.PredictedRating != null)
 {
-    <div class="alert alert-success mt-3">
-        Rating prezis: <b>@Model.PredictedRating</b>
+    <div class="alert alert-success">
+       
+        <p>Scor estimat: @Model.PredictedRating?.ToString("0.00")</p>
     </div>
 }

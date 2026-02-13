@@ -1,33 +1,34 @@
-﻿using BookRatings.MVC.ViewModels; // aici trebuie să ai RecommendationVm
+﻿using BookRatings.MVC.Data;
+using BookRatings.MVC.Services;
+using BookRatings.MVC.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace BookRatings.MVC.Controllers
 {
     public class RecommendationsController : Controller
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly PredictionService _predictionService;
 
-        public RecommendationsController(IHttpClientFactory httpClientFactory)
+
+        public RecommendationsController(
+            PredictionService predictionService)
         {
-            _httpClientFactory = httpClientFactory;
+            _predictionService = predictionService;
+           
         }
 
         [HttpGet]
         public IActionResult Index()
         {
-            // valori default (opțional)
-            var vm = new RecommendationVm();
-            return View(vm);
+            return View(new RecommendationVm());
         }
 
         [HttpPost]
         public async Task<IActionResult> Index(RecommendationVm vm)
         {
-            // validare simplă
             if (vm.UserId <= 0 || string.IsNullOrWhiteSpace(vm.ISBN))
             {
                 vm.Error = "Completează UserId și ISBN.";
@@ -37,24 +38,14 @@ namespace BookRatings.MVC.Controllers
 
             try
             {
-                // clientul configurat în Program.cs: AddHttpClient("MlApi", ...)
-                var client = _httpClientFactory.CreateClient("MlApi");
+                var rating = await _predictionService.PredictAsync((float)vm.UserId, vm.ISBN);
 
-                // payload exact cum ai în swagger (userId + isbn)
-                var payload = new
-                {
-                    userId = (float)vm.UserId,
-                    isbn = vm.ISBN
-                };
-
-                // IMPORTANT: folosim URL relativ, că BaseAddress vine din appsettings.json
-                var response = await client.PostAsJsonAsync("api/prediction/predict", payload);
-                response.EnsureSuccessStatusCode();
-
-                var result = await response.Content.ReadFromJsonAsync<PredictionResponse>();
-
-                vm.PredictedRating = result?.PredictedRating;
+                vm.PredictedRating = rating;
                 vm.Error = null;
+
+                // 🔽 AICI ADAUGI
+
+               
 
                 return View(vm);
             }
@@ -65,12 +56,5 @@ namespace BookRatings.MVC.Controllers
                 return View(vm);
             }
         }
-    }
-
-    // răspunsul pe care îl întorci din ML API:
-    // { "predictedRating": 9.73 }
-    public class PredictionResponse
-    {
-        public float PredictedRating { get; set; }
     }
 }

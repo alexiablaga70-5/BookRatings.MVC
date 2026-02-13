@@ -1,6 +1,8 @@
 ﻿using BookRatings.gRPC;
-using Microsoft.EntityFrameworkCore;
 using BookRatings.MVC.Data; // dacă așa se numește namespace-ul tău pentru DbContext
+using BookRatings.MVC.Services;
+using Microsoft.EntityFrameworkCore;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,12 +14,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // ML API (dacă îl ai deja)
-builder.Services.AddHttpClient("MLApi", client =>
+builder.Services.AddHttpClient<PredictionService>(client =>
 {
-    // pune aici adresa ta reală
-    // ex: client.BaseAddress = new Uri("https://localhost:7201/");
+    client.BaseAddress = new Uri("http://localhost:5191/");
 });
-
 // gRPC client (adresa = portul din launchSettings.json al BookRatings.gRPC)
 builder.Services.AddGrpcClient<RatingsGrpc.RatingsGrpcClient>(o =>
 {
